@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 
 const DrumPad = ({ id, src, text, onClick }) => (
-  <div className="drum-pad btn btn-secondary" id={`${id}`} onClick={onClick}>
+  <div className="drum-pad btn btn-secondary" id={`drum-pad-${id}`} onClick={onClick}>
     {text}
     <audio className="clip" id={id} src={src}></audio>
   </div>
@@ -13,23 +13,27 @@ const App = () => {
   const [volume, setVolume] = useState(0.5);
 
   const handlePadClick = (event) => {
-    const audio = event.target.querySelector('audio');
+  const audio = event.target.querySelector('audio');
+  if (!audio.paused) {
     audio.currentTime = 0;
+  }
+  audio.volume = volume;
+  audio.play();
+  setDisplayText(event.target.id);
+};
+
+const handleKeyDown = (event) => {
+  const drumPad = document.getElementById(`drum-pad-${event.key.toUpperCase()}`);
+  if (drumPad) {
+    const audio = drumPad.querySelector('audio');
+    if (!audio.paused) {
+      audio.currentTime = 0;
+    }
     audio.volume = volume;
     audio.play();
-    setDisplayText(event.target.id);
-  };
-
-  const handleKeyDown = (event) => {
-    const drumPad = document.getElementById(event.key.toUpperCase());
-    if (drumPad) {
-      const audio = drumPad.querySelector('audio');
-      audio.currentTime = 0;
-      audio.volume = volume;
-      audio.play();
-      setDisplayText(drumPad.id);
-    }
-  };
+    setDisplayText(drumPad.id);
+  }
+};
 
   const handleVolumeChange = (event) => {
     const newVolume = parseFloat(event.target.value);
@@ -44,7 +48,24 @@ const App = () => {
   }, []);
 
   return (
-    <div id="drum-machine" className="container well text-white">
+    <div id="drum-machine" className="container well">
+      <div id="display" className="display-4 mb-4">{displayText}</div>
+      <div className="volume-bar">
+        <label htmlFor="volume">Volume</label>
+        <div className="input-group">
+          <input
+            type="range"
+            id="volume"
+            className="form-range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+          />
+          <span className="volume-icon"><i className="fas fa-volume-up"></i></span>
+        </div>
+      </div>
       <div id="drum-pads" className="row">
         <div className="col-md-4">
           <DrumPad id="Heater 1" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3" text="Q" onClick={handlePadClick} />
@@ -72,26 +93,6 @@ const App = () => {
         </div>
         <div className="col-md-4">
           <DrumPad id="Closed-HH" src="https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3" text="C" onClick={handlePadClick} />
-        </div>
-      </div>
-      <div id="controller">
-        <div id="display" className="display-4 mb-4 bg-dark text-white">
-          {displayText}
-        </div>
-        <div className="volume-bar">
-          <label htmlFor="volume"> <i className="fas fa-volume-up"></i> Volume</label>
-          <div className="input-group">
-            <input
-              type="range"
-              id="volume"
-              className="form-range"
-              min="0"
-              max="1"
-              step="0.02"
-              value={volume}
-              onChange={handleVolumeChange}
-            />
-          </div>
         </div>
       </div>
     </div>
