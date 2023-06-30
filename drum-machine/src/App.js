@@ -38,32 +38,31 @@ function App() {
     }
   };
 
-  const handleKeyDown = (event) => {
-    const drumPad = drumPadsData.find((pad) => pad.key === event.key.toUpperCase());
-    if (drumPad) {
-      playAudio(drumPad.key);
-      setDisplayText(drumPad.name);
-    }
-  };
-
-  const playAudio = (keyTrigger) => {
-  const audioElement = document.getElementById(keyTrigger);
-  if (audioElement && audioElement.paused) {
-    audioElement.currentTime = 0;
-    audioElement.volume = volume;
-    audioElement.play().catch((error) => {
-      console.error('Failed to play audio:', error);
-    });
-  }
-};
-
-
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      const drumPad = drumPadsData.find((pad) => pad.key === event.key.toUpperCase());
+      if (drumPad) {
+        playAudio(drumPad.key);
+        setDisplayText(drumPad.name);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  });
+
+  const playAudio = (keyTrigger) => {
+    const audioElement = document.getElementById(keyTrigger);
+    if (audioElement && audioElement.paused) {
+      audioElement.currentTime = 0;
+      audioElement.volume = volume;
+      audioElement.play().catch((error) => {
+        console.error('Failed to play audio:', error);
+      });
+    }
+  };
 
   return (
     <div id="drum-machine" className="container text-center">
